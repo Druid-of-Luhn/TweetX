@@ -28,7 +28,7 @@ class TwitterBot():
     def __init__(self, game):
         self._game = game
 
-        self._voter = VoteCounter()
+        self._voter = VoteCounter(self)
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
         self._api = tweepy.API(auth)
@@ -56,7 +56,11 @@ class TwitterBot():
         command_map = {
             Command.FORWARD: self._game.environment.spaceship.accelerate,
             Command.LEFT: self._game.environment.spaceship.turn_left,
-            Command.RIGHT: self._game.environment.spaceship.turn_right
+            Command.RIGHT: self._game.environment.spaceship.turn_right,
+            Command.CHARGE_WEAPON: self._game.environment.spaceship.charge_weapon,
+            Command.FIRE_WEAPON: self._game.environment.spaceship.fire_weapon,
+            Command.RAISE_SHIELDS: self._game.environment.spaceship.raise_shields,
+            Command.LOWER_SHIELDS: self._game.environment.spaceship.lower_shields
         }
 
         try:
