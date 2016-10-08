@@ -176,4 +176,8 @@ class Game:
 if __name__ == "__main__":
     sim = Game()
     [sim.environment.add_entity(whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10))) for i in range(3)]
-    sim.run()
+    try:
+        sim.run()
+    except:
+        sim.stop()
+        raise
