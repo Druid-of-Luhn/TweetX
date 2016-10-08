@@ -5,8 +5,8 @@ class Game {
 
     this.render = canvas.getContext('2d');
 
-    this.player = new Entity(0, 0, 200, 150);
-    this.entities = [];
+    this.player = new Entity(0, 0);
+    this.entities = {};
     this.stars = new Stars(this.width, this.height, 4);
   }
 
@@ -18,10 +18,12 @@ class Game {
     this.stars.offset(x, y);
   }
 
-  setEntities(entities) {
-    this.entities = entities.map((e) => {
-      return new Entity(e.x, e.y, e.w, e.h);
-    });
+  addEntity(entity) {
+    this.entities[entity.entity] = entity;
+  }
+
+  removeEntity(entity) {
+    delete this.entities[entity.entity];
   }
 
   update() {
@@ -33,11 +35,11 @@ class Game {
     // Draw the background
     this.drawSpace();
     // Draw the player
-    this.player.draw(this.render);
+    Entity.draw(this.render, this.player);
     // Draw all other entities
-    this.entities.forEach((e) => {
-      e.draw(this.render);
-    });
+    for (const id in this.entities) {
+      Entity.draw(this.render, this.entities[id]);
+    }
   }
 
   drawSpace() {

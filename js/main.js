@@ -17,13 +17,8 @@ requestAnimationFrame(loop);
 const ws = new WebSocket('ws://localhost:17922');
 ws.onmessage = (e) => {
   const data = JSON.parse(e.data);
-  // Put the entities into the game
-  if (data.hasOwnProperty('entities')) {
-    game.setEntities(data.entities);
-  }
-  // Update the player's position in the game
-  if (data.hasOwnProperty('player')) {
-    game.setAnchor(data.player.x, data.player.y);
+  if (data.hasOwnProperty('added') && data.added) {
+    game.addEntity(data);
   }
 };
 
