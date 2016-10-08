@@ -48,20 +48,14 @@ class PowerConsumer():
             self.reactor.power += 1
 
 class Weapon(PowerConsumer):
-
-    def __init__(self):
-        super().__init__()
+    pass
 
 class Shield(PowerConsumer):
-
-    def __init__(self):
-        super().__init__()
+    pass
 
 class EnginePower(PowerConsumer):
+    pass
 
-    def __init__(self):
-        super().__init__()
-   
 class Spaceship(Entity):
     WIDTH = 1
     HEIGHT = 1
@@ -74,9 +68,9 @@ class Spaceship(Entity):
         self.direction_orientation = self.direction_velocity
         self.health = 6
         self.reactor = Reactor()
-        self.weapon = Weapon(reactor)
-        self.shield = Shield(reactor)
-        self.engine_power = EnginePower(reactor)
+        self.weapon = Weapon(self.reactor)
+        self.shield = Shield(self.reactor)
+        self.engine_power = EnginePower(self.reactor)
         self.engine = False
 
     # counter clockwise

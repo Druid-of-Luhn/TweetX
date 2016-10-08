@@ -76,8 +76,8 @@ class Environment:
         k = random.uniform(0, 1)
         for p, choose in appearance_probabilities:
             if p > k:
-                dx = max(0, random.normalvariate(8, 3.5))
-                dy = max(0, random.normalvariate(8, 3.5))
+                dx = max(0, random.normalvariate(70, 10))
+                dy = max(0, random.normalvariate(70, 10))
                 new_entity = choose()(self.spaceship.x + dx, self.spaceship.y + dy)
                 self.add_entity(new_entity)
                 log.debug('Generated a %s at (%s, %s)' % (type(new_entity).__name__, new_entity.x, new_entity.y))
@@ -109,6 +109,8 @@ class Game:
                 'type': type(e).__name__,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'width': e.width,
+                'height': e.height,
                 'direction': e.direction_orientation,
                 'added': True
             })
@@ -123,6 +125,8 @@ class Game:
             self.push({
                 'entity': e.id,
                 'pos': (e.x, e.y),
+                'width': e.width,
+                'height': e.height,
                 'velocity': (e.velocity_x, e.velocity_y),
                 'direction': e.direction_orientation,
             })
@@ -183,7 +187,7 @@ class Game:
     def run(self):
         self.active = True
 
-        self.bot.start()
+        #self.bot.start()
         self.tick_thread = threading.Thread(target = self.tick)
         self.tick_thread.start()
 
@@ -199,7 +203,6 @@ class Game:
 
 if __name__ == "__main__":
     sim = Game()
-    [sim.environment.add_entity(whale.Dolphin(randrange(1, 10), randrange(1, 10))) for i in range(3)]
     try:
         sim.run()
     except KeyboardInterrupt:
