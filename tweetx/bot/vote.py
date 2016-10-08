@@ -1,9 +1,10 @@
-import operator
+import logging, operator
 
 from enum import Enum
 from collections import defaultdict
 
 REQUIRED_CERTAINTY = 60
+log = logging.getLogger('tweetx')
 
 class Command(Enum):
     FORWARD = 1
@@ -59,6 +60,7 @@ class VoteCounter():
     def vote(self, string):
         move = self._parse_command(string)
         if move:
+            log.info('Got a vote for %s' % move)
             self._votes[move] += 1
             self._bot.tick()
             return True

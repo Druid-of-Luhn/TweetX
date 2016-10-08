@@ -14,6 +14,7 @@ class Entity(object):
         self.velocity_y = 0
         self.width = width
         self.height = height
+        self.direction_orientation = 0
 
 class Weapon():
 
@@ -36,8 +37,8 @@ class Weapon():
 class Spaceship(Entity):
     WIDTH = 1
     HEIGHT = 1
-    TURN_RADIANS = 0.174533
-    FORCE = 1
+    TURN_RADIANS = 0.785398
+    FORCE = 5
 
     def __init__(self, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
@@ -45,7 +46,7 @@ class Spaceship(Entity):
         self.direction_orientation = self.direction_velocity
         self.ammo = 15
         self.health = 5
-        weapons = [Weapon('top'), Weapon('bottom'), Weapon('front'), Weapon('back')]
+        weapons = [Weapon('left'), Weapon('right'), Weapon('front'), Weapon('back')]
 
     # counter clockwise
     def turn_left(self):

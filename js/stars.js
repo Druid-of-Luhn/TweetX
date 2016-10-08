@@ -22,7 +22,7 @@ class Stars {
             x: x,
             y: y,
             // Stars have a random size
-            size: Math.abs(noise.perlin2(posX, posY)) * 4
+            size: Math.abs(noise.perlin2(5, 5)) * 4
           });
         }
       }

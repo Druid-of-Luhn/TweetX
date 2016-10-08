@@ -1,9 +1,10 @@
-import time, tweepy
+import logging, time, tweepy
 from .vote import Command, VoteCounter
 
 from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET
 
 BOT_NAME = 'TweetX_Bot'
+log = logging.getLogger('tweetx')
 
 class ReplyListener(tweepy.StreamListener):
         def __init__(self, voter, api):
@@ -17,11 +18,12 @@ class ReplyListener(tweepy.StreamListener):
             valid = self._voter.vote(status.text)
 
             if not valid:
+                log.warning('Got an invalid Twitter command from @%s' % status.user.screen_name)
                 self._api.update_status("@{}: Sorry, it looks like that wasn't a valid command.".format(status.user.screen_name), in_reply_to_status_id=status.id)
 
         def on_error(self, status_code):
             if status_code == 420:
-                print("We got rate-limited, terminating!")
+                log.error("We got rate-limited, terminating!")
                 return False
 
 class TwitterBot():
@@ -38,6 +40,7 @@ class TwitterBot():
 
     def start(self):
         self._api.update_status('TweetX went online @ {}'.format(self._current_time()))
+        log.info('We\'re online!')
 
         self._listener = ReplyListener(self._voter, self._api)
         self._stream = tweepy.Stream(auth = self._api.auth, listener=self._listener)
