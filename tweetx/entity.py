@@ -63,7 +63,7 @@ class Spaceship(Entity):
     WIDTH = 83
     HEIGHT = 76
     TURN_RADIANS = 0.785398
-    FORCE = 100
+    FORCE = 10
 
     def __init__(self, environment, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
@@ -139,6 +139,7 @@ class Spaceship(Entity):
             self.shield.decrement_charge()
 
     def charge_engine(self):
+        log.info('Charging the engines')
         self.engine_power.increment_charge()
 
     def decharge_engine(self):

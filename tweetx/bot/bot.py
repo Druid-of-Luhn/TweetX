@@ -59,8 +59,8 @@ class TwitterBot():
         spaceship = self._game.environment.spaceship
 
         command_map = {
-            Command.FORWARD: spaceship.engine,
-            Command.ENGINES_OFF: spaceship.engine,
+            Command.FORWARD: spaceship.engine_on,
+            Command.ENGINES_OFF: spaceship.engine_off,
             Command.LEFT: spaceship.turn_left,
             Command.RIGHT: spaceship.turn_right,
             Command.CHARGE_WEAPON: spaceship.charge_weapon,
