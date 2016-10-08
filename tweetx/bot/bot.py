@@ -40,7 +40,7 @@ class TwitterBot():
         self._api.update_status('TweetX went online @ {}'.format(self._current_time()))
 
         self._listener = ReplyListener(self._voter, self._api)
-        self._stream = tweepy.Stream(auth = self._api.auth, listener=listener)
+        self._stream = tweepy.Stream(auth = self._api.auth, listener=self._listener)
         self._stream.filter(track=['@{}'.format(BOT_NAME)], async=True)
 
     def stop(self, crashed=False):
