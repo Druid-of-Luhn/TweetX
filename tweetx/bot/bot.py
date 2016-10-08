@@ -30,7 +30,7 @@ class TwitterBot():
     def __init__(self, game):
         self._game = game
 
-        self._voter = VoteCounter()
+        self._voter = VoteCounter(self)
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
         self._api = tweepy.API(auth)
@@ -56,10 +56,20 @@ class TwitterBot():
     def tick(self):
         command = self._voter.tick()
 
+        spaceship = self._game.environment.spaceship
+
         command_map = {
-            Command.FORWARD: self._game.environment.spaceship.accelerate,
-            Command.LEFT: self._game.environment.spaceship.turn_left,
-            Command.RIGHT: self._game.environment.spaceship.turn_right
+            Command.FORWARD: spaceship.engines_on,
+            Command.ENGINES_OFF: spaceship.engines_off,
+            Command.LEFT: spaceship.turn_left,
+            Command.RIGHT: spaceship.turn_right,
+            Command.CHARGE_WEAPON: spaceship.charge_weapon,
+            Command.FIRE_WEAPON: spaceship.fire_weapon,
+            Command.RAISE_SHIELDS: spaceship.raise_shields,
+            Command.LOWER_SHIELDS: spaceship.lower_shields,
+            Command.DECHARGE_WEAPON: spaceship.decharge_weapon,
+            Command.CHARGE_ENGINES: spaceship.charge_engine,
+            Command.DECHARGE_ENGINES: spaceship.decharge_engine
         }
 
         try:

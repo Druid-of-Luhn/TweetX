@@ -10,48 +10,54 @@ class Command(Enum):
     FORWARD = 1
     LEFT = 2
     RIGHT = 3
-    CHARGE_TOP = 4
-    CHARGE_LEFT = 5
-    CHARGE_RIGHT = 6
-    CHARGE_BOTTOM = 7
 
-MOVE_CHOICES = {
+    CHARGE_WEAPON = 4
+    DECHARGE_WEAPON = 5
+    FIRE_WEAPON = 6
+    RAISE_SHIELDS = 7
+    LOWER_SHIELDS = 8
+    CHARGE_ENGINES = 9
+    DECHARGE_ENGINES = 10
+    ENGINES_OFF = 11
+
+SINGLE_MOVES = {
     'forwards': Command.FORWARD,
     'forward': Command.FORWARD,
     'straight': Command.FORWARD,
     'onwards': Command.FORWARD,
+    'engines': Command.FORWARD,
+
+    'slow': Command.ENGINES_OFF,
+    'stop': Command.ENGINES_OFF,
 
     'left': Command.LEFT,
     'port': Command.LEFT,
 
     'right': Command.RIGHT,
-    'starboard': Command.RIGHT
+    'starboard': Command.RIGHT,
+
+    'charge': Command.CHARGE_WEAPON,
+    'uncharge': Command.DECHARGE_WEAPON,
+    'fire': Command.FIRE_WEAPON,
+    'raise': Command.RAISE_SHIELDS,
+    'lower': Command.LOWER_SHIELDS,
+    'faster': Command.CHARGE_ENGINES,
+    'slower': Command.DECHARGE_ENGINES
 }
 
 class VoteCounter():
-    def __init__(self):
+    def __init__(self, bot):
         self._votes = defaultdict(int)
+        self._bot = bot
 
     def _parse_command(self, string):
         lower_string = string.lower()
         
-        if 'charge' in lower_string:
-            if 'front' in lower_string:
-                return Command.CHARGE_TOP
-            elif 'left' in lower_string:
-                return Command.CHARGE_LEFT
-            elif 'right' in lower_string:
-                return Command.CHARGE_RIGHT
-            elif 'back' in lower_string:
-                return Command.CHARGE_BOTTOM
-        elif 'fire' in lower_string:
-            pass  # TODO implement
-        else:
-            words = lower_string.split()
+        words = lower_string.split()
 
         for word in words:
             try:
-                choice = MOVE_CHOICES[word]
+                choice = SINGLE_MOVES[word]
                 return choice
             except KeyError:
                 pass
@@ -67,6 +73,8 @@ class VoteCounter():
         if move:
             log.info('Got a vote for %s' % move)
             self._votes[move] += 1
+            self._bot.tick()
             return True
 
+        self._bot.tick()
         return False

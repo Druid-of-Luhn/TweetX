@@ -18,17 +18,11 @@ Turns the shift 10° counter-clockwise.
 
 ### Right
 **Known as**: `right`, `starboard`.
-**e.g.**: `There's Klingon's on @TweetX's starboard bow.`
+**e.g.**: `There's Klingons on @TweetX's starboard bow.`
 
 Turns the shift 10° clockwise.
 
-### Charge [top/bottom/left/right] weapons
-**Known as**: `charge top weapons`, etc.
-**e.g.**: `@TweetX, charge left weapons please.`
-
-Charge up one of the TweetX ship's many weapons.
-
-### Fire [top/bottom/left/right] weapons 
+### Fire
 **Known as**: `fire top weapons`, etc.
 **e.g.**: `@TweetX, fire top weapons`
 
