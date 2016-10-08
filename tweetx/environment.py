@@ -73,7 +73,9 @@ class Game:
             self.queue = queue.Queue()
 
         def push(self, change):
-            self.queue.put(change)
+            if self.game.active:
+                log.debug('Sending to %s: %s' % (self.websocket.remote_address, change))
+                self.queue.put(change)
 
         async def loop(self):
             while self.game.active:
@@ -81,6 +83,29 @@ class Game:
                 await self.websocket.send(json.dumps(change))
 
             self.game.clients.remove(self)
+
+        def handle_entity_added(self, e):
+            self.push({
+                'entity': e.id,
+                'type': type(e).__name__,
+                'pos': (e.x, e.y),
+                'velocity': (e.velocity_x, e.velocity_y),
+                'added': True
+            })
+
+        def handle_entity_removed(self, e):
+            self.push({
+                'entity': e.id,
+                'removed': True
+            })
+
+        def handle_entity_moved(self, e):
+            self.push({
+                'entity': e.id,
+                'pos': (e.x, e.y),
+                'velocity': (e.velocity_x, e.velocity_y),
+            })
+
 
     # The internal tick length, in seconds
     TICK_LENGTH = 1
@@ -98,44 +123,20 @@ class Game:
         self.bot = bot.TwitterBot(self)
         self.exit_event = threading.Event()
 
-        self.environment.entity_added += self.handle_entity_added
-        self.environment.entity_removed += self.handle_entity_removed
-        self.environment.entity_moved += self.handle_entity_moved
-
-
-    def push(self, change):
-        for client in self.clients:
-            log.debug('Sending to %s: %s' % (client, change))
-            client.push(change)
-
-    def handle_entity_added(self, e):
-        self.push({
-            'entity': e.id,
-            'type': type(e).__name__,
-            'pos': (e.x, e.y),
-            'velocity': (e.velocity_x, e.velocity_y),
-            'added': True
-        })
-
-    def handle_entity_removed(self, e):
-        self.push({
-            'entity': e.id,
-            'removed': True
-        })
-
-    def handle_entity_moved(self, e):
-        self.push({
-            'entity': e.id,
-            'pos': (e.x, e.y),
-            'velocity': (e.velocity_x, e.velocity_y),
-        })
-
 
     async def start_server(self):
         async def new_client(websocket, path):
-            log.info('New client! %s' % path)
+            log.info('New client! %s' % (websocket.remote_address,))
+
             client = self.Client(self, websocket, path)
             self.clients.append(client)
+            self.environment.entity_added += client.handle_entity_added
+            self.environment.entity_removed += client.handle_entity_removed
+            self.environment.entity_moved += client.handle_entity_moved
+
+            for entity in self.environment.entities:
+                client.handle_entity_added(entity)
+
             await client.loop()
 
         self.websocket = await websockets.serve(new_client, self.host, self.port)
