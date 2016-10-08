@@ -7,6 +7,7 @@ logging.basicConfig()
 log = logging.getLogger('tweetx')
 log.setLevel(logging.DEBUG)
 
+
 class Event:
     def __init__(self):
         self.callbacks = []
@@ -63,6 +64,23 @@ class Environment:
                     entity.health -= 1
                 if isinstance(collide_entity, Spaceship):
                     collide_entity.health -= 1
+
+    def generate_entities(self):
+        appearance_probabilities = (
+            (0.15, lambda: random.choice([whale.Dolphin])),
+            (0.1, lambda: entity.Meteor),
+            (0.05, lambda: entity.Planet)
+        )
+
+        k = random.uniform(0, 1)
+        for p, choose in appearance_probabilities:
+            if p > k:
+                dx = max(0, random.normalvariate(8, 3.5))
+                dy = max(0, random.normalvariate(8, 3.5))
+                new_entity = choose()(self.spaceship.x + dx, self.spaceship.y + dy)
+                self.add_entity(new_entity)
+                log.debug('Generated a %s at (%s, %s)' % (type(new_entity).__name__, new_entity.x, new_entity.y))
+                break
 
 class Game:
     class Client:
@@ -158,6 +176,7 @@ class Game:
                 self.ticks_since_last_command -= 1
 
             self.environment.update_positions()
+            self.environment.generate_entities()
             time.sleep(self.TICK_LENGTH)
 
     def run(self):
@@ -179,7 +198,7 @@ class Game:
 
 if __name__ == "__main__":
     sim = Game()
-    [sim.environment.add_entity(whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10))) for i in range(3)]
+    [sim.environment.add_entity(whale.Dolphin(randrange(1, 10), randrange(1, 10))) for i in range(3)]
     try:
         sim.run()
     except KeyboardInterrupt:
