@@ -54,9 +54,9 @@ class TwitterBot():
         command = self._voter.tick()
 
         command_map = {
-            Command.FORWARD: self._game.environment.spaceship.accelerate(),
-            Command.LEFT: self._game.environment.spaceship.turn_left(),
-            Command.RIGHT: self._game.environment.spaceship.turn_right()
+            Command.FORWARD: self._game.environment.spaceship.accelerate,
+            Command.LEFT: self._game.environment.spaceship.turn_left,
+            Command.RIGHT: self._game.environment.spaceship.turn_right
         }
 
         try:
