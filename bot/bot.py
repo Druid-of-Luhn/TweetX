@@ -41,6 +41,11 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-listener = ReplyListener()
-stream = tweepy.Stream(auth = api.auth, listener=listener)
-stream.filter(track=['@TweetX_Bot'])
+api.update_status("We're online!")
+
+try:
+    listener = ReplyListener()
+    stream = tweepy.Stream(auth = api.auth, listener=listener)
+    stream.filter(track=['@TweetX_Bot'])
+except KeyboardInterrupt:
+    api.update_status("We're down.")
