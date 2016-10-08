@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import asyncio, entity, io, json, queue, random, threading, time, websockets, whale
+from bot import bot
 from random import randrange
 
 class Event:
@@ -63,12 +64,19 @@ class Environment:
 class Game:
     # The internal tick length, in seconds
     TICK_LENGTH = 1
+    # The number of internal ticks to a command tick
+    TICKS_PER_COMMAND_TICK = 5
     
-    def __init__(self, target_address):
+    def __init__(self, host = 'localhost', port = 17922):
         self.active = False
         self.environment = Environment()
-        self.target_address = target_address
+        self.host = host
+        self.port = port
+        self.clients = []
         self.changes = queue.Queue()
+        self.ticks_since_last_command = 0
+        self.bot = bot.TwitterBot(self)
+        self.exit_event = threading.Event()
 
         self.environment.entity_added += self.handle_entity_added
         self.environment.entity_removed += self.handle_entity_removed
@@ -99,35 +107,48 @@ class Game:
 
 
     @asyncio.coroutine
+    def new_client(self, client):
+        self.clients.append(client)
+        self.exit_event.wait()
+        self.clients.remove(client)
+
+    @asyncio.coroutine
     def loop(self):
-        self.websocket = yield from websockets.connect(self.target_address)
+        self.websocket = yield from websockets.serve(self.new_client, self.host, self.port)
 
         while self.active:
+            if self.ticks_since_last_command == 0:
+                self.bot.tick()
+                self.ticks_since_last_command = self.TICKS_PER_COMMAND_TICK
+            else:
+                self.ticks_since_last_command -= 1
             self.environment.update_positions()
 
             while True:
                 try:
                     change = self.changes.get_nowait()
-                    if change is None:
-                        break
                 except queue.Empty:
                     break
                 
-                yield from self.websocket.send(json.dumps(change))
+                for client in self.clients:
+                    yield from client.send(json.dumps(change))
+
                 print(change)
 
             time.sleep(self.TICK_LENGTH)
 
     def run(self):
         self.active = True
+        self.bot.start()
         event_loop = asyncio.get_event_loop()
         event_loop.run_until_complete(self.loop())
     
     def stop(self):
         self.active = False
+        self.exit_event.set()
 
 
 if __name__ == "__main__":
-    sim = Game('ws://localhost:9000')
+    sim = Game()
     [sim.environment.add_entity(whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10))) for i in range(3)]
     sim.run()
