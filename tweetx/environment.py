@@ -167,10 +167,10 @@ class Game:
         event_loop.run_until_complete(self.start_server())
         event_loop.run_forever()
     
-    def stop(self):
+    def stop(self, crashed=False):
         self.active = False
         self.exit_event.set()
-        self.bot.stop()
+        self.bot.stop(crashed=crashed)
 
 
 if __name__ == "__main__":

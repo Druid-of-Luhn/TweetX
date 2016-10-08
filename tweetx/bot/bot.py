@@ -11,10 +11,10 @@ class ReplyListener(tweepy.StreamListener):
             super().__init__()
             self._voter = voter
             self._api = api
-            self._last_user = None
+            self.last_user = None
 
         def on_status(self, status):
-            self._last_user = status.user.screen_name
+            self.last_user = status.user.screen_name
             valid = self._voter.vote(status.text)
 
             if not valid:
@@ -42,25 +42,27 @@ class TwitterBot():
         self._api.update_status('TweetX went online @ {}'.format(self._current_time()))
         log.info('We\'re online!')
 
-        listener = ReplyListener(self._voter, self._api)
-        self._stream = tweepy.Stream(auth = self._api.auth, listener=listener)
+        self._listener = ReplyListener(self._voter, self._api)
+        self._stream = tweepy.Stream(auth = self._api.auth, listener=self._listener)
         self._stream.filter(track=['@{}'.format(BOT_NAME)], async=True)
 
     def stop(self, crashed=False):
         self._api.update_status('TweetX went down @ {}.'.format(self._current_time()))
         self._stream.disconnect()
 
-        if crashed and self._last_user:
+        if crashed and self._listener.last_user:
             self._api.update_status('Congratulations to @{} for breaking TweetX @ {}'.format(self._last_user, self._current_time()))
 
     def tick(self):
         command = self._voter.tick()
 
         command_map = {
-            Command.FORWARD: self._game.environment.spaceship.accelerate(),
-            Command.LEFT: self._game.environment.spaceship.turn_left(),
-            Command.RIGHT: self._game.environment.spaceship.turn_right()
+            Command.FORWARD: self._game.environment.spaceship.accelerate,
+            Command.LEFT: self._game.environment.spaceship.turn_left,
+            Command.RIGHT: self._game.environment.spaceship.turn_right
         }
 
-        if command:
+        try:
             command_map[command]()
+        except KeyError:
+            pass
