@@ -1,13 +1,11 @@
-import random
-
+#!/usr/bin/env python3
+import asyncio, entity, io, json, random, threading, time, websockets, whale
 
 class Environment:
 
-    entities = []
-
     def __init__(self):
-        # make a spaceship
-        self.entities.append(self.spaceship)
+        self.spaceship = entity.Spaceship(0, 0)
+        self.entities = [self.spaceship]
         # function for generating entities
 
     def space_contains(self, x, y):
@@ -17,19 +15,72 @@ class Environment:
         return None
         
     def update_positions(self):
+        moved_entities = []
+        removed_entities = []
+
         for ent in self.entities:
             if ent != self.spaceship:
                 ent.x -= spaceship.velocity_x - ent.velocity_x
                 ent.y -= spaceship.velocity_y - ent.velocity_y
+
+                if ent.velocity_x != 0 or ent.velocity_y != 0:
+                    moved_entities.append(ent)
+
                 entity = space_contains(ent.x, ent.y)
                 if entity != None:
                     ent.velocity_x = -1*ent.velocity_x
                     ent.velocity_y = -1*ent.velocity_y
                     entity.velocity_x = -1*entity.velocity_x
                     entity.velocity_y = -1*entity.velocity_y
+
                 if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
                     entities.remove(ent)
+                    removed_entities.append(ent)
+
         # function for randomly generating new entities entering field
+        return (moved_entities, removed_entities)
+
+
+class Simulator:
+    TICK_LENGTH = 1
+    
+    def __init__(self, target_address):
+        self.active = False
+        self.environment = Environment()
+        self.target_address = target_address
+
+    @asyncio.coroutine
+    def loop(self):
+        self.websocket = yield from websockets.connect(self.target_address)
+
+        while self.active:
+            moved, removed = self.environment.update_positions()
+            changes = json.dumps([
+                {
+                    'entity': e.id,
+                    'pos': (e.x, e.y),
+                    'velocity': (e.velocity_x, e.velocity_y),
+                    'removed': False
+                } for e in moved
+            ] + [
+                {
+                    'entity': e.id,
+                    'removed': True
+                } for e in removed
+            ])
+            
+            yield from self.websocket.send(changes)
+            print(changes)
+            time.sleep(self.TICK_LENGTH)
+
+    def run(self):
+        self.active = True
+        event_loop = asyncio.get_event_loop()
+        event_loop.run_until_complete(self.loop())
+    
+    def stop(self):
+        self.active = False
+
 
 if __name__ == "__main__":
-    environment = Environment()
+    sim = Simulator('ws://localhost:9000').run()
