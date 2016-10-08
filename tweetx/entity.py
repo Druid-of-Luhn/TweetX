@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import math
+
 class Entity(object):
 
     def __init__(self, id, x, y, width, height):
@@ -14,6 +16,23 @@ class Entity(object):
 class Spaceship(Entity):
     WIDTH = 1
     HEIGHT = 1
+    TURN_RADIANS = 0.174533
+    FORCE = 1
 
     def __init__(self, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
+        self.direction_velocity = math.atan(self.velocity_x/self.velocity_y)
+        self.direction_orientation = self.direction_velocity
+
+    # counter clockwise
+    def turn_left():
+        self.direction_orientation += TURN_RADIANS
+
+    # clockwise
+    def turn_right():
+        self.direction_orientation -= TURN_RADIANS
+
+    def accelerate():
+        self.velocity_x += FORCE*math.cos(self.direction_orientation)
+        self.velocity_y += FORCE*math.sin(self.direction_orientation)
+        self.direction_velocity = math.atan(self.velocity_x/self.velocity_y)
