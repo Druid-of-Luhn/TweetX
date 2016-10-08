@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-import asyncio, entity, io, json, queue, random, threading, time, websockets, whale
+import asyncio, entity, io, json, logging, queue, random, threading, time, websockets, whale
 from bot import bot
 from random import randrange
+
+logging.basicConfig()
+log = logging.getLogger('tweetx')
+log.setLevel(logging.DEBUG)
 
 class Event:
     def __init__(self):
@@ -60,8 +64,24 @@ class Environment:
                 #if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
                     #self.remove_entity(ent)
 
-
 class Game:
+    class Client:
+        def __init__(self, game, websocket, path):
+            self.game = game
+            self.websocket = websocket
+            self.path = path
+            self.queue = queue.Queue()
+
+        def push(self, change):
+            self.queue.put(change)
+
+        async def loop(self):
+            while self.game.active:
+                change = self.queue.get()
+                await self.websocket.send(json.dumps(change))
+
+            self.game.clients.remove(self)
+
     # The internal tick length, in seconds
     TICK_LENGTH = 1
     # The number of internal ticks to a command tick
@@ -83,8 +103,13 @@ class Game:
         self.environment.entity_moved += self.handle_entity_moved
 
 
+    def push(self, change):
+        for client in self.clients:
+            log.debug('Sending to %s: %s' % (client, change))
+            client.push(change)
+
     def handle_entity_added(self, e):
-        self.changes.put({
+        self.push({
             'entity': e.id,
             'type': type(e).__name__,
             'pos': (e.x, e.y),
@@ -93,59 +118,58 @@ class Game:
         })
 
     def handle_entity_removed(self, e):
-        self.changes.put({
+        self.push({
             'entity': e.id,
             'removed': True
         })
 
     def handle_entity_moved(self, e):
-        self.changes.put({
+        self.push({
             'entity': e.id,
             'pos': (e.x, e.y),
             'velocity': (e.velocity_x, e.velocity_y),
         })
 
 
-    @asyncio.coroutine
-    def new_client(self, client):
-        self.clients.append(client)
-        self.exit_event.wait()
-        self.clients.remove(client)
+    async def start_server(self):
+        async def new_client(websocket, path):
+            log.info('New client! %s' % path)
+            client = self.Client(self, websocket, path)
+            self.clients.append(client)
+            await client.loop()
 
-    @asyncio.coroutine
-    def loop(self):
-        self.websocket = yield from websockets.serve(self.new_client, self.host, self.port)
+        self.websocket = await websockets.serve(new_client, self.host, self.port)
+        log.info('Started listening on %s:%d' % (self.host, self.port))
 
+    def tick(self):
         while self.active:
+            log.debug('Tick!')
+
             if self.ticks_since_last_command == 0:
+                log.debug('Performing a command tick...')
                 self.bot.tick()
                 self.ticks_since_last_command = self.TICKS_PER_COMMAND_TICK
             else:
                 self.ticks_since_last_command -= 1
+
             self.environment.update_positions()
-
-            while True:
-                try:
-                    change = self.changes.get_nowait()
-                except queue.Empty:
-                    break
-                
-                for client in self.clients:
-                    yield from client.send(json.dumps(change))
-
-                print(change)
-
             time.sleep(self.TICK_LENGTH)
 
     def run(self):
         self.active = True
+
         self.bot.start()
+        self.tick_thread = threading.Thread(target = self.tick)
+        self.tick_thread.start()
+
         event_loop = asyncio.get_event_loop()
-        event_loop.run_until_complete(self.loop())
+        event_loop.run_until_complete(self.start_server())
+        event_loop.run_forever()
     
     def stop(self):
         self.active = False
         self.exit_event.set()
+        self.bot.stop()
 
 
 if __name__ == "__main__":
