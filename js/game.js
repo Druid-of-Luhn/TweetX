@@ -18,6 +18,9 @@ class Game {
   }
 
   addEntity(entity) {
+    if (entity.type === 'Spaceship') {
+      this.player = entity;
+    }
     this.entities[entity.entity] = entity;
   }
 
@@ -31,11 +34,14 @@ class Game {
   }
 
   updateEntity(entity) {
-    // Set the entity's new position
-    this.entities[entity.entity].pos = entity.pos;
     // Follow the player
     if (entity.entity === this.player) {
       this.stars.offset(entity.pos[0], entity.pos[1]);
+      this.entities[entity.entity].pos = entity.pos;
+    } else {
+      // Set the entity's new position
+      this.entities[entity.entity].pos[0] = entity.pos[0] - this.player.pos[0];
+      this.entities[entity.entity].pos[1] = entity.pos[1] - this.player.pos[1];
     }
   }
 

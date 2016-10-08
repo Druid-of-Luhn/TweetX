@@ -4,6 +4,7 @@
 }
 
 html {
+    color: white;
     font-family: sans-serif;
 }
 
@@ -19,4 +20,38 @@ html {
     bottom: 0;
     left: 0;
     z-index: -1;
+}
+
+.stats {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+.stats__item {
+    display: inline-block;
+    margin: 0 1em;
+}
+
+input[type="range"] {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: white;
+    background-image: -moz-linear-gradient(90deg, red 33%, white 33%);
+    background-image: -webkit-linear-gradient(90deg, red 33%, white 33%);
+    background-image: linear-gradient(90deg, red 33%, white 33%);
+    height: 20px;
+    pointer-events: none;
+    width: 200px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    display: none;
+}
+input[type="range"]::-moz-range-thumb {
+    display: none;
+}
+input[type="range"]::-ms-thumb {
+    display: none;
 }
