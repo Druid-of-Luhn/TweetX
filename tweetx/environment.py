@@ -54,15 +54,15 @@ class Environment:
             if ent.velocity_x != 0 or ent.velocity_y != 0:
                 self.entity_moved(ent)
 
-            entity = self.space_contains(ent.x, ent.y)
+            collide_entity = self.space_contains(ent.x, ent.y)
             if entity != None:
                 ent.velocity_x = -1*ent.velocity_x
                 ent.velocity_y = -1*ent.velocity_y
-                entity.velocity_x = -1*entity.velocity_x
-                entity.velocity_y = -1*entity.velocity_y
-                if isinstance(entity, Spaceship):
-                    entity.health -= 1
-                if isinstance(collide_entity, Spaceship):
+                collide_entity.velocity_x = -1*collide_entity.velocity_x
+                collide_entity.velocity_y = -1*collide_entity.velocity_y
+                if isinstance(collide_entity, entity.Spaceship):
+                    collide_entity.health -= 1
+                if isinstance(collide_entity, entity.Spaceship):
                     collide_entity.health -= 1
 
     def generate_entities(self):
