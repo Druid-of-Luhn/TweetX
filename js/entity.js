@@ -6,8 +6,8 @@ class Entity {
     if (entity.hasOwnProperty('direction')) {
       render.rotate(entity.direction);
     }
-    const w = entity.width * SCALE;
-    const h = entity.height * SCALE;
+    const w = entity.width;
+    const h = entity.height;
     // Draw the sprite
     if (entity.type === 'Spaceship') {
       // Centre the player
