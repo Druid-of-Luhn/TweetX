@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+import logging
 import math
 import random
 from enum import Enum
+
+log = logging.getLogger('tweetx')
 
 class Entity(object):
     def __init__(self, id, x, y, width, height):
@@ -28,7 +31,7 @@ class PowerConsumer():
         self.reactor = reactor
 
     def increment_charge(self):
-        if self.reactor.power > 0 and charge < 3:
+        if self.reactor.power > 0 and self.charge < 3:
             self.charge += 1
             self.reactor.power -= 1
 
@@ -62,9 +65,10 @@ class Spaceship(Entity):
     TURN_RADIANS = 0.785398
     FORCE = 5
 
-    def __init__(self, x, y):
+    def __init__(self, environment, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
         self.calculate_velocity_orientation()
+        self.environment = environment
         self.direction_orientation = self.direction_velocity
         self.health = 6
         self.reactor = Reactor()
@@ -101,23 +105,34 @@ class Spaceship(Entity):
             self.direction_velocity = 0
 
     def charge_weapon(self):
-        self.weapon.increment_charge
+        self.weapon.increment_charge()
 
     def decharge_weapon(self):
-        self.weapon.decrement_charge
+        self.weapon.decrement_charge()
 
     def raise_shields(self):
-        self.shield.increment_charge
+        self.shield.increment_charge()
 
     def lower_shields(self):
-        self.shield.decrement_charge
+        self.shield.decrement_charge()
 
     def fire_weapon(self):
-        if weapon.is_charged():
+        if self.weapon.is_charged():
+            p = 0.25 * self.weapon.charge
+            if random.uniform(0, 1) < p:
+                enemies = sorted(self.environment.entities, key = lambda e: (e.x - self.x) ** 2 + (e.y - self.y) ** 2)
+                for enemy in enemies:
+                    if enemy != self:
+                        self.environment.remove_entity(enemy)
+                        log.info('Fired weapon and destroyed enemy %s' % enemy)
+                        break
+            else:
+                log.info('Fired a weapon and failed')
+
             self.weapon.reset()
 
     def decrement_health(self):
-        if not shield.is_charged():
+        if not self.shield.is_charged():
             self.health -= 2
         else:
             self.health -= 1
@@ -128,6 +143,7 @@ class Spaceship(Entity):
 
     def decharge_engine(self):
         self.engine_power.decrement_charge()
+
 
 
 

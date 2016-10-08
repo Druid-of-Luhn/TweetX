@@ -23,7 +23,7 @@ class Event:
 
 class Environment:
     def __init__(self):
-        self.spaceship = entity.Spaceship(0, 0)
+        self.spaceship = entity.Spaceship(self, 0, 0)
         self.entities = [self.spaceship]
 
         self.entity_added = Event()
@@ -77,8 +77,8 @@ class Environment:
         for p, choose in appearance_probabilities:
             if p > k:
                 while True:
-                    dx = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.normalvariate(8, 3.5))
-                    dy = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.normalvariate(8, 3.5))
+                    dx = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.uniform(80, 500))
+                    dy = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.uniform(80, 500))
                     new_entity = choose()(self.spaceship.x + dx, self.spaceship.y + dy)
 
                     if self.space_contains(new_entity.x, new_entity.y) is None:
