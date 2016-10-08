@@ -5,7 +5,6 @@ import random
 from enum import Enum
 
 class Entity(object):
-
     def __init__(self, id, x, y, width, height):
         self.id = id
         self.x = x
@@ -15,6 +14,9 @@ class Entity(object):
         self.width = width
         self.height = height
         self.direction_orientation = 0
+
+    def tick(self):
+        pass
 
 class Reactor():
     def __init__(self):
@@ -136,8 +138,12 @@ class Spaceship(Entity):
 
 
 class Meteor(Entity):
-    
     def __init__(self, x, y):
-        super().__init__('meteor', x, y,random.randrange(1,3),random.randrange(1,3))
-        self.velocity_x = random.randrange(0,20)
-        self.velocity_y = random.randrange(0,20)
+        super().__init__('meteor%s' % (id(self) // 10**5), x, y, random.randrange(1,3), random.randrange(1,3))
+        self.velocity_x = random.randrange(0,5)
+        self.velocity_y = random.randrange(0,5)
+
+class Planet(Entity):
+    def __init__(self, x, y):
+        radius = random.randrange(0, 10)
+        super().__init__('planet%s' % (id(self) // 10**5), x, y, radius, radius)
