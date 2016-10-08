@@ -1,5 +1,5 @@
-import tweepy
-from vote import VoteCounter
+import time, tweepy
+from .vote import Command, VoteCounter
 
 from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET
 
@@ -23,34 +23,35 @@ class ReplyListener(tweepy.StreamListener):
                 return False
 
 class TwitterBot():
-    def __init__(self, environment):
-        self._environment = environment
+    def __init__(self, game):
+        self._game = game
 
         self._voter = VoteCounter()
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
         self._api = tweepy.API(auth)
 
-    def _current_time():
-        return strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+    def _current_time(self):
+        return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
 
-    def start():
+    def start(self):
         self._api.update_status('TweetX went online @ {}'.format(self._current_time()))
 
-        try:
-            listener = ReplyListener(self._voter, self._api)
-            self._stream = tweepy.Stream(auth = self._api.auth, listener=listener)
-            self._stream.filter(track=['@{}'.format(BOT_NAME)], async=True)
-        except KeyboardInterrupt:
-            self._api.update_status('TweetX went down @ {}.'.format(self._current_time()))
+        listener = ReplyListener(self._voter, self._api)
+        self._stream = tweepy.Stream(auth = self._api.auth, listener=listener)
+        self._stream.filter(track=['@{}'.format(BOT_NAME)], async=True)
 
-    def tick():
+    def stop(self):
+        self._api.update_status('TweetX went down @ {}.'.format(self._current_time()))
+        self._stream.disconnect()
+
+    def tick(self):
         command = self._voter.tick()
 
         command_map = {
-            Command.FORWARD: self._environment.spaceship.accelerate()
-            Command.LEFT: self._environment.spaceship.turn_left()
-            Command.RIGHT: self._environment.spaceship.turn_right()
+            Command.FORWARD: self._game.environment.spaceship.accelerate(),
+            Command.LEFT: self._game.environment.spaceship.turn_left(),
+            Command.RIGHT: self._game.environment.spaceship.turn_right()
         }
 
         if command:
