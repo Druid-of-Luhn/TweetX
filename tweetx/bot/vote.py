@@ -17,20 +17,20 @@ class Command(Enum):
     LOWER_SHIELDS = 7
 
 SINGLE_MOVES = {
-    'forwards': Command.FORWARD
-    'forward': Command.FORWARD
-    'straight': Command.FORWARD
-    'onwards': Command.FORWARD
+    'forwards': Command.FORWARD,
+    'forward': Command.FORWARD,
+    'straight': Command.FORWARD,
+    'onwards': Command.FORWARD,
 
-    'left': Command.LEFT
-    'port': Command.LEFT
+    'left': Command.LEFT,
+    'port': Command.LEFT,
 
     'right': Command.RIGHT,
-    'starboard': Command.RIGHT
+    'starboard': Command.RIGHT,
 
-    'charge': Command.CHARGE_WEAPON
-    'fire': Command.FIRE_WEAPON
-    'raise': Command.RAISE_SHIELDS
+    'charge': Command.CHARGE_WEAPON,
+    'fire': Command.FIRE_WEAPON,
+    'raise': Command.RAISE_SHIELDS,
     'lower': Command.LOWER_SHIELDS
 }
 
