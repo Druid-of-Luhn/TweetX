@@ -60,8 +60,8 @@ class EnginePower(PowerConsumer):
     pass
 
 class Spaceship(Entity):
-    WIDTH = 1
-    HEIGHT = 1
+    WIDTH = 83
+    HEIGHT = 76
     TURN_RADIANS = 0.785398
     FORCE = 5
 

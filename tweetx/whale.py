@@ -6,7 +6,7 @@ from entity import Entity
 class Dolphin(Entity):
 
     def __init__(self, x, y):
-        super().__init__('dolphin%d' % (id(self) // 10**5), x, y, 2, 1)
+        super().__init__('dolphin%d' % (id(self) // 10**5), x, y, 121, 81)
         self.velocity_x = random.uniform(0, 1)
         self.velocity_y = random.uniform(0, 1)
 

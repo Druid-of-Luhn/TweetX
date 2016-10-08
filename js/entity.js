@@ -6,8 +6,8 @@ class Entity {
     if (entity.hasOwnProperty('direction')) {
       render.rotate(entity.direction);
     }
-    const w = entity.width * SCALE;
-    const h = entity.height * SCALE;
+    const w = entity.width;
+    const h = entity.height;
     // Draw the sprite
     if (entity.type === 'Spaceship') {
       // Centre the player
@@ -15,7 +15,7 @@ class Entity {
       render.drawImage(document.images[0], pos.x, pos.y, w, h);
     } else {
       // Place the entity
-      const pos = norm(entity.pos[0] * SCALE, entity.pos[1] * SCALE);
+      const pos = norm(entity.pos[0], entity.pos[1]);
       if (entity.type === 'Dolphin') {
         // Draw a dolphin
         render.drawImage(document.images[1], pos.x, pos.y, w, h);
