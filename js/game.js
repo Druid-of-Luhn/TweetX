@@ -1,3 +1,5 @@
+const SCALE = 60;
+
 class Game {
   constructor(canvas) {
     this.width = canvas.width;
@@ -7,14 +9,6 @@ class Game {
 
     this.entities = {};
     this.stars = new Stars(this.width, this.height, 4);
-  }
-
-  setAnchor(x, y) {
-    this.entities.forEach((e) => {
-      e.x -= x;
-      e.y -= y;
-    });
-    this.stars.offset(x, y);
   }
 
   addEntity(entity) {
@@ -36,12 +30,12 @@ class Game {
   updateEntity(entity) {
     // Follow the player
     if (entity.entity === this.player) {
-      this.stars.offset(entity.pos[0], entity.pos[1]);
+      this.stars.offset(entity.pos[0] * SCALE, entity.pos[1] * SCALE);
       this.entities[entity.entity].pos = entity.pos;
     } else {
       // Set the entity's new position
-      this.entities[entity.entity].pos[0] = entity.pos[0] - this.player.pos[0];
-      this.entities[entity.entity].pos[1] = entity.pos[1] - this.player.pos[1];
+      this.entities[entity.entity].pos[0] = entity.pos[0] * SCALE - this.player.pos[0] * SCALE;
+      this.entities[entity.entity].pos[1] = entity.pos[1] * SCALE - this.player.pos[1] * SCALE;
     }
   }
 
