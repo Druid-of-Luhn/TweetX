@@ -7,14 +7,40 @@
     </head>
     <body>
         <h1 class="page-title">TweetX</h1>
+
         <img src="images/spaceship.png" style="visibility: hidden;">
         <img src="images/dolphin.png" style="visibility: hidden;">
+
         <canvas class="canvas  js-canvas">
             Your browser does not support canvas.
         </canvas>
+
+        <div class="stats  js-stats">
+            <div class="stats__item">
+                <h2>Power</h2>
+                <input type="range" min="0" max="3" value="1" class="stats__power  js-stats-power">
+            </div>
+
+            <div class="stats__item">
+                <h2>Engines<h2>
+                <input type="range" min="0" max="3" value="1" class="stats__engines  js-stats-engines">
+            </div>
+
+            <div class="stats__item">
+                <h2>Shield<h2>
+                <input type="range" min="0" max="3" value="1" class="stats__shield  js-stats-shield">
+            </div>
+
+            <div class="stats__item">
+                <h2>Weapon<h2>
+                <input type="range" min="0" max="3" value="1" class="stats__weapon  js-stats-weapon">
+            </div>
+        </div>
+
         <script src="js/entity.js" type="text/javascript"></script>
         <script src="js/perlin.js" type="text/javascript"></script>
         <script src="js/stars.js" type="text/javascript"></script>
+        <script src="js/stats.js" type="text/javascript"></script>
         <script src="js/game.js" type="text/javascript"></script>
         <script src="js/main.js" type="text/javascript"></script>
     </body>

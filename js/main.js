@@ -18,10 +18,6 @@ const ws = new WebSocket('ws://localhost:17922');
 ws.onmessage = (e) => {
   const data = JSON.parse(e.data);
   if (data.hasOwnProperty('added') && data.added) {
-    // Set the player entity
-    if (data.type === 'Spaceship') {
-      game.player = data.entity;
-    }
     // Add the new entity
     game.addEntity(data);
   }
@@ -29,6 +25,10 @@ ws.onmessage = (e) => {
     // Set the entity's postition
     game.updateEntity(data);
   }
+  // Update the ship stats
+  [ 'power', 'engines', 'shield', 'weapon' ].forEach((stat) => {
+    updateRange(stat, data[stat]);
+  });
 };
 
 function norm(x, y) {
@@ -42,5 +42,10 @@ function norm(x, y) {
 function loop() {
   game.update();
   game.draw();
+  [ 'power', 'engines', 'shield', 'weapon' ].forEach((stat) => {
+    if (Math.random() > 0.9) {
+      updateRange(stat, Math.floor(Math.random() * 4));
+    }
+  });
   requestAnimationFrame(loop);
 }

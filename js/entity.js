@@ -1,5 +1,11 @@
 class Entity {
   static draw(render, entity) {
+    render.save();
+    // Rotate the sprite
+    if (entity.hasOwnProperty('direction')) {
+      render.rotate(entity.direction);
+    }
+    // Draw the sprite
     if (entity.type === 'Spaceship') {
       // Centre the player
       const pos = norm(0, 0);
@@ -16,5 +22,6 @@ class Entity {
         render.fillRect(pos.x, pos.y, 100, 80);
       }
     }
+    render.restore();
   }
 }
