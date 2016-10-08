@@ -20,21 +20,39 @@ class Entity(object):
 
 class Weapon():
 
-    def __init__(self, position):
-        self.position = position
+    def __init__(self):
         self.charge = 0
 
     def increment_charge(self):
-        self.charge += 25
+        if charge < 3:
+            self.charge += 1
 
     def is_charged(self):
-        if self.charge == 100:
+        if self.charge >= 1:
             return True
         else:
             return False
 
     def reset(self):
         self.charge = 0
+
+class Shield():
+
+    def __init__(self):
+        self.charge = 0
+
+    def increment_charge(self):
+        if charge < 3:
+            self.charge += 1
+
+    def is_charged(self):
+        if self.charge >= 1:
+            return True
+        else:
+            return False
+
+    def decrement_charge(self):
+        self.charge -= 1
    
 class Spaceship(Entity):
     WIDTH = 1
@@ -46,9 +64,9 @@ class Spaceship(Entity):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
         self.calculate_velocity_orientation()
         self.direction_orientation = self.direction_velocity
-        self.ammo = 15
-        self.health = 5
-        weapons = [Weapon('left'), Weapon('right'), Weapon('front'), Weapon('back')]
+        self.health = 6
+        weapon = Weapon()
+        shield = Shield()
 
     # counter clockwise
     def turn_left(self):
@@ -69,17 +87,19 @@ class Spaceship(Entity):
         else:
             self.direction_velocity = 0
 
-    def charge_weapon(self, position):
-        for weapon in weapons:
-            if weapon.position == position:
-                weapon.increment_charge
+    def charge_weapon(self):
+        weapon.increment_charge
 
-    def fire_weapon(self, position):
-        for weapon in weapons:
-            if weapon.position == position:
-                if weapon.is_charged():
-                    weapon.reset()
-                    ammo -= 1
+    def fire_weapon(self):
+        if weapon.is_charged():
+            weapon.reset()
+
+    def decrement_health(self):
+        if not shield.is_charged():
+            health -= 2
+        else:
+            health -= 1
+            shield.decrement_charge()
 
 class Meteor(Entity):
     def __init__(self, x, y):
