@@ -18,7 +18,16 @@ const ws = new WebSocket('ws://localhost:17922');
 ws.onmessage = (e) => {
   const data = JSON.parse(e.data);
   if (data.hasOwnProperty('added') && data.added) {
+    // Set the player entity
+    if (data.type === 'Spaceship') {
+      game.player = data.entity;
+    }
+    // Add the new entity
     game.addEntity(data);
+  }
+  if (data.hasOwnProperty('pos')) {
+    // Set the entity's postition
+    game.updateEntity(data);
   }
 };
 
