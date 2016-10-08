@@ -42,10 +42,5 @@ function norm(x, y) {
 function loop() {
   game.update();
   game.draw();
-  [ 'power', 'engines', 'shield', 'weapon' ].forEach((stat) => {
-    if (Math.random() > 0.9) {
-      updateRange(stat, Math.floor(Math.random() * 4));
-    }
-  });
   requestAnimationFrame(loop);
 }
