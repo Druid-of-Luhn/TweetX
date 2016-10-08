@@ -48,6 +48,7 @@ class Environment:
         
     def update_positions(self):
         for ent in self.entities:
+            ent.tick()
             ent.x += ent.velocity_x
             ent.y += ent.velocity_y
 
