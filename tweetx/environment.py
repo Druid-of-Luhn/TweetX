@@ -117,6 +117,7 @@ class Game:
         self.port = port
         self.clients = []
         self.changes = queue.Queue()
+        self.ticks = 0
         self.ticks_since_last_command = 0
         self.bot = bot.TwitterBot(self)
         self.exit_event = threading.Event()
@@ -142,6 +143,7 @@ class Game:
 
     def tick(self):
         while self.active:
+            self.ticks += 1
             log.debug('Tick!')
 
             if self.ticks_since_last_command == 0:
