@@ -1,14 +1,7 @@
 class Entity {
-  constructor(x, y, width, height) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-  }
-
-  draw(render) {
+  static draw(render, entity) {
     render.fillStyle = 'white';
-    const pos = norm(this.x, this.y);
-    render.fillRect(pos.x, pos.y, this.width, this.height);
+    const pos = norm(entity.pos[0], entity.pos[1]);
+    render.fillRect(pos.x, pos.y, 150, 150);
   }
 }

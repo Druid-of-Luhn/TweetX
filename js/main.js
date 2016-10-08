@@ -17,13 +17,17 @@ requestAnimationFrame(loop);
 const ws = new WebSocket('ws://localhost:17922');
 ws.onmessage = (e) => {
   const data = JSON.parse(e.data);
-  // Put the entities into the game
-  if (data.hasOwnProperty('entities')) {
-    game.setEntities(data.entities);
+  if (data.hasOwnProperty('added') && data.added) {
+    // Set the player entity
+    if (data.type === 'Spaceship') {
+      game.player = data.entity;
+    }
+    // Add the new entity
+    game.addEntity(data);
   }
-  // Update the player's position in the game
-  if (data.hasOwnProperty('player')) {
-    game.setAnchor(data.player.x, data.player.y);
+  if (data.hasOwnProperty('pos')) {
+    // Set the entity's postition
+    game.updateEntity(data);
   }
 };
 
