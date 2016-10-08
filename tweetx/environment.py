@@ -47,22 +47,18 @@ class Environment:
         
     def update_positions(self):
         for ent in self.entities:
-            if ent != self.spaceship:
-                ent.x -= self.spaceship.velocity_x - ent.velocity_x
-                ent.y -= self.spaceship.velocity_y - ent.velocity_y
+            ent.x -= self.spaceship.velocity_x - ent.velocity_x
+            ent.y -= self.spaceship.velocity_y - ent.velocity_y
 
-                if ent.velocity_x != 0 or ent.velocity_y != 0:
-                    self.entity_moved(ent)
+            if ent.velocity_x != 0 or ent.velocity_y != 0:
+                self.entity_moved(ent)
 
-                entity = self.space_contains(ent.x, ent.y)
-                if entity != None:
-                    ent.velocity_x = -1*ent.velocity_x
-                    ent.velocity_y = -1*ent.velocity_y
-                    entity.velocity_x = -1*entity.velocity_x
-                    entity.velocity_y = -1*entity.velocity_y
-
-                #if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
-                    #self.remove_entity(ent)
+            entity = self.space_contains(ent.x, ent.y)
+            if entity != None:
+                ent.velocity_x = -1*ent.velocity_x
+                ent.velocity_y = -1*ent.velocity_y
+                entity.velocity_x = -1*entity.velocity_x
+                entity.velocity_y = -1*entity.velocity_y
 
 class Game:
     class Client:
@@ -178,6 +174,9 @@ if __name__ == "__main__":
     [sim.environment.add_entity(whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10))) for i in range(3)]
     try:
         sim.run()
-    except:
+    except KeyboardInterrupt:
         sim.stop()
+        raise
+    except:
+        sim.stop(crashed=True)
         raise
