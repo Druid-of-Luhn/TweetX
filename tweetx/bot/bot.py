@@ -10,9 +10,11 @@ class ReplyListener(tweepy.StreamListener):
             super().__init__()
             self._voter = voter
             self._api = api
+            self._last_user = None
 
         def on_status(self, status):
-            valid = self._voter.vote(status)
+            self._last_user = status.user.screen_name
+            valid = self._voter.vote(status.text)
 
             if not valid:
                 self._api.update_status("@{}: Sorry, it looks like that wasn't a valid command.".format(status.user.screen_name), in_reply_to_status_id=status.id)
@@ -41,9 +43,12 @@ class TwitterBot():
         self._stream = tweepy.Stream(auth = self._api.auth, listener=listener)
         self._stream.filter(track=['@{}'.format(BOT_NAME)], async=True)
 
-    def stop(self):
+    def stop(self, crashed=False):
         self._api.update_status('TweetX went down @ {}.'.format(self._current_time()))
         self._stream.disconnect()
+
+        if crashed and self._last_user:
+            self._api.update_status('Congratulations to @{} for breaking TweetX @ {}'.format(self._last_user, self._current_time()))
 
     def tick(self):
         command = self._voter.tick()
