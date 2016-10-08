@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import asyncio, entity, io, json, random, threading, time, websockets, whale
+from random import randrange
 
 class Environment:
 
@@ -10,7 +11,7 @@ class Environment:
 
     def space_contains(self, x, y):
         for entity in self.entities:
-            if (entity.x-(width/2) <= x <= entity.x+(entity.width/2)) and (entity.y-(entity.height/2) <= y <= entity.y+(entity.height/2)):
+            if (entity.x-(entity.width/2) <= x <= entity.x+(entity.width/2)) and (entity.y-(entity.height/2) <= y <= entity.y+(entity.height/2)):
                 return entity 
         return None
         
@@ -20,13 +21,13 @@ class Environment:
 
         for ent in self.entities:
             if ent != self.spaceship:
-                ent.x -= spaceship.velocity_x - ent.velocity_x
-                ent.y -= spaceship.velocity_y - ent.velocity_y
+                ent.x -= self.spaceship.velocity_x - ent.velocity_x
+                ent.y -= self.spaceship.velocity_y - ent.velocity_y
 
                 if ent.velocity_x != 0 or ent.velocity_y != 0:
                     moved_entities.append(ent)
 
-                entity = space_contains(ent.x, ent.y)
+                entity = self.space_contains(ent.x, ent.y)
                 if entity != None:
                     ent.velocity_x = -1*ent.velocity_x
                     ent.velocity_y = -1*ent.velocity_y
@@ -34,7 +35,7 @@ class Environment:
                     entity.velocity_y = -1*entity.velocity_y
 
                 if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
-                    entities.remove(ent)
+                    self.entities.remove(ent)
                     removed_entities.append(ent)
 
         # function for randomly generating new entities entering field
@@ -53,6 +54,16 @@ class Simulator:
     def loop(self):
         self.websocket = yield from websockets.connect(self.target_address)
 
+        yield from self.websocket.send(json.dumps([
+            {
+                'entity': e.id,
+                'type': type(e).__name__,
+                'pos': (e.x, e.y),
+                'velocity': (e.velocity_x, e.velocity_y),
+                'added': True
+            } for e in self.environment.entities
+        ]))
+
         while self.active:
             moved, removed = self.environment.update_positions()
             changes = json.dumps([
@@ -60,7 +71,6 @@ class Simulator:
                     'entity': e.id,
                     'pos': (e.x, e.y),
                     'velocity': (e.velocity_x, e.velocity_y),
-                    'removed': False
                 } for e in moved
             ] + [
                 {
@@ -83,4 +93,6 @@ class Simulator:
 
 
 if __name__ == "__main__":
-    sim = Simulator('ws://localhost:9000').run()
+    sim = Simulator('ws://localhost:9000')
+    sim.environment.entities += [whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10)) for i in range(3)]
+    sim.run()
