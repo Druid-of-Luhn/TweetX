@@ -1,5 +1,3 @@
-const SCALE = 60;
-
 class Game {
   constructor(canvas) {
     this.width = canvas.width;
@@ -30,12 +28,12 @@ class Game {
   updateEntity(entity) {
     // Follow the player
     if (entity.entity === this.player) {
-      this.stars.offset(entity.pos[0] * SCALE, entity.pos[1] * SCALE);
+      this.stars.offset(entity.pos[0], entity.pos[1]);
       this.entities[entity.entity].pos = entity.pos;
     } else {
       // Set the entity's new position
-      this.entities[entity.entity].pos[0] = (entity.pos[0] - this.player.pos[0]) * SCALE;
-      this.entities[entity.entity].pos[1] = (entity.pos[1] - this.player.pos[1]) * SCALE;
+      this.entities[entity.entity].pos[0] = entity.pos[0] - this.player.pos[0];
+      this.entities[entity.entity].pos[1] = entity.pos[1] - this.player.pos[1];
     }
   }
 
