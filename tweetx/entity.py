@@ -21,7 +21,7 @@ class Spaceship(Entity):
 
     def __init__(self, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
-        self.direction_velocity = math.atan(self.velocity_x/self.velocity_y)
+        calculate_velocity_orientation()
         self.direction_orientation = self.direction_velocity
 
     # counter clockwise
@@ -35,4 +35,10 @@ class Spaceship(Entity):
     def accelerate():
         self.velocity_x += FORCE*math.cos(self.direction_orientation)
         self.velocity_y += FORCE*math.sin(self.direction_orientation)
-        self.direction_velocity = math.atan(self.velocity_x/self.velocity_y)
+        calculate_velocity_orientation()
+
+    def calculate_velocity_orientation:
+        if self.velocity_y != 0:
+            self.direction_velocity = math.atan(self.velocity_x/self.velocity_y)
+        else:
+            self.direction_velocity = 0
