@@ -12,15 +12,23 @@ class Command(Enum):
     RIGHT = 3
 
     CHARGE_WEAPON = 4
-    FIRE_WEAPON = 5
-    RAISE_SHIELDS = 6
-    LOWER_SHIELDS = 7
+    DECHARGE_WEAPON = 5
+    FIRE_WEAPON = 6
+    RAISE_SHIELDS = 7
+    LOWER_SHIELDS = 8
+    CHARGE_ENGINES = 9
+    DECHARGE_ENGINES = 10
+    ENGINES_OFF = 11
 
 SINGLE_MOVES = {
     'forwards': Command.FORWARD,
     'forward': Command.FORWARD,
     'straight': Command.FORWARD,
     'onwards': Command.FORWARD,
+    'engines': Command.FORWARD,
+
+    'slow': Command.ENGINES_OFF,
+    'stop': Command.ENGINES_OFF,
 
     'left': Command.LEFT,
     'port': Command.LEFT,
@@ -29,9 +37,12 @@ SINGLE_MOVES = {
     'starboard': Command.RIGHT,
 
     'charge': Command.CHARGE_WEAPON,
+    'uncharge': Command.DECHARGE_WEAPON,
     'fire': Command.FIRE_WEAPON,
     'raise': Command.RAISE_SHIELDS,
-    'lower': Command.LOWER_SHIELDS
+    'lower': Command.LOWER_SHIELDS,
+    'faster': Command.CHARGE_ENGINES,
+    'slower': Command.DECHARGE_ENGINES
 }
 
 class VoteCounter():
