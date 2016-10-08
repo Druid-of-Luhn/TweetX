@@ -10,7 +10,8 @@ class Command(Enum):
     LEFT = 2
     RIGHT = 3
 
-CHOICES = {
+MOVE_CHOICES = {
+    'forwards': Command.FORWARD,
     'forward': Command.FORWARD,
     'straight': Command.FORWARD,
     'onwards': Command.FORWARD,
@@ -27,10 +28,25 @@ class VoteCounter():
         self._votes = defaultdict(int)
 
     def _parse_command(self, string):
-        words = string.lower().split()
+        lower_string = string.lower()
+        
+        if 'charge' in lower_string:
+            if 'front' in lower_string:
+                return Command.CHARGE_TOP
+            elif 'left' in lower_string:
+                return Command.CHARGE_LEFT
+            elif 'right' in lower_string:
+                return Command.CHARGE_RIGHT
+            elif 'back' in lower_string:
+                return Command.CHARGE_BOTTOM
+        elif 'fire' in lower_string:
+            pass  # TODO implement
+        else:
+            words = lower_string.split()
+
         for word in words:
             try:
-                choice = CHOICES[word]
+                choice = MOVE_CHOICES[word]
                 return choice
             except KeyError:
                 pass
