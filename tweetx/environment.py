@@ -76,9 +76,14 @@ class Environment:
         k = random.uniform(0, 1)
         for p, choose in appearance_probabilities:
             if p > k:
-                dx = max(0, random.normalvariate(8, 3.5))
-                dy = max(0, random.normalvariate(8, 3.5))
-                new_entity = choose()(self.spaceship.x + dx, self.spaceship.y + dy)
+                while True:
+                    dx = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.normalvariate(8, 3.5))
+                    dy = (1 if random.uniform(0, 1) > 0.5 else -1) * max(0, random.normalvariate(8, 3.5))
+                    new_entity = choose()(self.spaceship.x + dx, self.spaceship.y + dy)
+
+                    if self.space_contains(new_entity.x, new_entity.y) is None:
+                        break
+
                 self.add_entity(new_entity)
                 log.debug('Generated a %s at (%s, %s)' % (type(new_entity).__name__, new_entity.x, new_entity.y))
                 break
@@ -109,6 +114,8 @@ class Game:
                 'type': type(e).__name__,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'width': e.width,
+                'height': e.height,
                 'direction': e.direction_orientation,
                 'added': True
             })
@@ -123,6 +130,8 @@ class Game:
             self.push({
                 'entity': e.id,
                 'pos': (e.x, e.y),
+                'width': e.width,
+                'height': e.height,
                 'velocity': (e.velocity_x, e.velocity_y),
                 'direction': e.direction_orientation,
             })
@@ -169,6 +178,14 @@ class Game:
             self.ticks += 1
             log.debug('Tick!')
 
+            for client in self.clients:
+                client.push({
+                    'power': self.environment.spaceship.reactor.power,
+                    'shield': self.environment.spaceship.shield.charge,
+                    'engines': self.environment.spaceship.engine_power.charge,
+                    'weapon': self.environment.spaceship.weapon.charge
+                })
+
             if self.ticks_since_last_command == 0:
                 log.debug('Performing a command tick...')
                 self.bot.tick()
@@ -199,7 +216,6 @@ class Game:
 
 if __name__ == "__main__":
     sim = Game()
-    [sim.environment.add_entity(whale.Dolphin(randrange(1, 10), randrange(1, 10))) for i in range(3)]
     try:
         sim.run()
     except KeyboardInterrupt:
