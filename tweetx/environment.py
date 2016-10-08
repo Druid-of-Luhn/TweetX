@@ -138,9 +138,9 @@ class Game:
 
 
     # The internal tick length, in seconds
-    TICK_LENGTH = 1
+    TICK_LENGTH = 0.5
     # The number of internal ticks to a command tick
-    TICKS_PER_COMMAND_TICK = 5
+    TICKS_PER_COMMAND_TICK = 10
     
     def __init__(self, host = 'localhost', port = 17922):
         self.active = False

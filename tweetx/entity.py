@@ -63,7 +63,7 @@ class Spaceship(Entity):
     WIDTH = 83
     HEIGHT = 76
     TURN_RADIANS = 0.785398
-    FORCE = 5
+    FORCE = 100
 
     def __init__(self, environment, x, y):
         super().__init__('spaceship', x, y, self.WIDTH, self.HEIGHT)
@@ -149,11 +149,11 @@ class Spaceship(Entity):
 
 class Meteor(Entity):
     def __init__(self, x, y):
-        super().__init__('meteor%s' % (id(self) // 10**5), x, y, random.randrange(1,3), random.randrange(1,3))
+        super().__init__('meteor%s' % (random.randrange(1000,30000) // 10**5), x, y, random.randrange(1,3), random.randrange(1,3))
         self.velocity_x = random.randrange(0,5)
         self.velocity_y = random.randrange(0,5)
 
 class Planet(Entity):
     def __init__(self, x, y):
         radius = random.randrange(0, 10)
-        super().__init__('planet%s' % (id(self) // 10**5), x, y, radius, radius)
+        super().__init__('planet%s' % (random.randrange(1000,30000) // 10**5), x, y, radius, radius)
