@@ -27,7 +27,7 @@ class Game {
 
   updateEntity(entity) {
     // Follow the player
-    if (entity.entity === this.player) {
+    if (entity.entity === this.player.entity) {
       this.stars.offset(entity.pos[0], entity.pos[1]);
       this.entities[entity.entity].pos = entity.pos;
     } else {
