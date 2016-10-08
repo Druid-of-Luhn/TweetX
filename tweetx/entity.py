@@ -16,14 +16,19 @@ class Entity(object):
         self.height = height
         self.direction_orientation = 0
 
-class Weapon():
-
+class Reactor():
     def __init__(self):
+        self.power = 3
+
+class PowerConsumer():
+    def __init__(self, reactor):
         self.charge = 0
+        self.reactor = reactor
 
     def increment_charge(self):
-        if charge < 3:
+        if self.reactor.power > 0 and charge < 3:
             self.charge += 1
+            self.reactor.power -= 1
 
     def is_charged(self):
         if self.charge >= 1:
@@ -32,25 +37,28 @@ class Weapon():
             return False
 
     def reset(self):
+        self.reactor.power += self.charge
         self.charge = 0
-
-class Shield():
-
-    def __init__(self):
-        self.charge = 0
-
-    def increment_charge(self):
-        if charge < 3:
-            self.charge += 1
-
-    def is_charged(self):
-        if self.charge >= 1:
-            return True
-        else:
-            return False
 
     def decrement_charge(self):
-        self.charge -= 1
+        if self.charge > 0:
+            self.charge -= 1
+            self.reactor.power += 1
+
+class Weapon(PowerConsumer):
+
+    def __init__(self):
+        super().__init__()
+
+class Shield(PowerConsumer):
+
+    def __init__(self):
+        super().__init__()
+
+class EnginePower(PowerConsumer):
+
+    def __init__(self):
+        super().__init__()
    
 class Spaceship(Entity):
     WIDTH = 1
@@ -63,8 +71,11 @@ class Spaceship(Entity):
         self.calculate_velocity_orientation()
         self.direction_orientation = self.direction_velocity
         self.health = 6
-        weapon = Weapon()
-        shield = Shield()
+        self.reactor = Reactor()
+        self.weapon = Weapon(reactor)
+        self.shield = Shield(reactor)
+        self.engine_power = EnginePower(reactor)
+        self.engine = False
 
     # counter clockwise
     def turn_left(self):
@@ -74,10 +85,18 @@ class Spaceship(Entity):
     def turn_right(self):
         self.direction_orientation -= self.TURN_RADIANS
 
-    def accelerate(self):
-        self.velocity_x += self.FORCE*math.cos(self.direction_orientation)
-        self.velocity_y += self.FORCE*math.sin(self.direction_orientation)
-        self.calculate_velocity_orientation()
+    def engine_on(self):
+        self.engine = True
+
+    def engine_off(self):
+        self.engine = False
+
+    def tick(self):
+        if self.engine_on:
+            force = self.FORCE*self.engine_power.charge
+            self.velocity_x += force*math.cos(self.direction_orientation)
+            self.velocity_y += force*math.sin(self.direction_orientation)
+            self.calculate_velocity_orientation()
 
     def calculate_velocity_orientation(self):
         if self.velocity_y != 0:
@@ -86,22 +105,39 @@ class Spaceship(Entity):
             self.direction_velocity = 0
 
     def charge_weapon(self):
-        weapon.increment_charge
+        self.weapon.increment_charge
+
+    def decharge_weapon(self):
+        self.weapon.decrement_charge
+
+    def raise_shields(self):
+        self.shield.increment_charge
+
+    def lower_shields(self):
+        self.shield.decrement_charge
 
     def fire_weapon(self):
         if weapon.is_charged():
-            weapon.reset()
+            self.weapon.reset()
 
     def decrement_health(self):
         if not shield.is_charged():
-            health -= 2
+            self.health -= 2
         else:
-            health -= 1
-            shield.decrement_charge()
+            self.health -= 1
+            self.shield.decrement_charge()
+
+    def charge_engine(self):
+        self.engine_power.increment_charge()
+
+    def decharge_engine(self):
+        self.engine_power.decrement_charge()
+
+
 
 class Meteor(Entity):
     
     def __init__(self, x, y):
         super().__init__('meteor', x, y,random.randrange(1,3),random.randrange(1,3))
-        self.velocity_x = random.randrange(0,5)
-        self.velocity_y = random.randrange(0,5)
+        self.velocity_x = random.randrange(0,20)
+        self.velocity_y = random.randrange(0,20)
