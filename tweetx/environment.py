@@ -47,8 +47,8 @@ class Environment:
         
     def update_positions(self):
         for ent in self.entities:
-            ent.x -= self.spaceship.velocity_x - ent.velocity_x
-            ent.y -= self.spaceship.velocity_y - ent.velocity_y
+            ent.x += ent.velocity_x
+            ent.y += ent.velocity_y
 
             if ent.velocity_x != 0 or ent.velocity_y != 0:
                 self.entity_moved(ent)
