@@ -169,6 +169,7 @@ class Game:
     def stop(self):
         self.active = False
         self.exit_event.set()
+        self.bot.stop()
 
 
 if __name__ == "__main__":
