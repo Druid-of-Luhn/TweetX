@@ -9,6 +9,10 @@ class Command(Enum):
     FORWARD = 1
     LEFT = 2
     RIGHT = 3
+    CHARGE_TOP = 4
+    CHARGE_LEFT = 5
+    CHARGE_RIGHT = 6
+    CHARGE_BOTTOM = 7
 
 MOVE_CHOICES = {
     'forwards': Command.FORWARD,
