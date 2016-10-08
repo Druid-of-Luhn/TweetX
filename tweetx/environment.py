@@ -90,6 +90,7 @@ class Game:
                 'type': type(e).__name__,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'direction': e.direction_orientation,
                 'added': True
             })
 
@@ -104,6 +105,7 @@ class Game:
                 'entity': e.id,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'direction': e.direction_orientation,
             })
 
 
@@ -119,6 +121,7 @@ class Game:
         self.port = port
         self.clients = []
         self.changes = queue.Queue()
+        self.ticks = 0
         self.ticks_since_last_command = 0
         self.bot = bot.TwitterBot(self)
         self.exit_event = threading.Event()
@@ -144,6 +147,7 @@ class Game:
 
     def tick(self):
         while self.active:
+            self.ticks += 1
             log.debug('Tick!')
 
             if self.ticks_since_last_command == 0:
