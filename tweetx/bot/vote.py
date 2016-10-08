@@ -1,7 +1,6 @@
 import operator
 
 from enum import Enum
-from fuzzywuzzy import process
 from collections import defaultdict
 
 REQUIRED_CERTAINTY = 60
@@ -23,9 +22,18 @@ CHOICES = {
     'starboard': Command.RIGHT
 }
 
-class VoteCounter(object):
+class VoteCounter():
     def __init__(self):
         self._votes = defaultdict(int)
+
+    def _parse_command(self, string):
+        words = string.lower().split()
+        for word in words:
+            try:
+                choice = CHOICES[word]
+                return choice
+            except KeyError:
+                pass
 
     def tick(self):
         if self._votes.items():
@@ -35,15 +43,8 @@ class VoteCounter(object):
 
     def vote(self, string):
         move = self._parse_command(string)
-        print(move)
         if move:
             self._votes[move] += 1
             return True
 
         return False
-
-    def _parse_command(self, string):
-        result, certainty = process.extractOne(string, CHOICES.keys())
-
-        if certainty > REQUIRED_CERTAINTY:
-            return CHOICES[result]
