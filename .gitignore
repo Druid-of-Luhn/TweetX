@@ -90,3 +90,6 @@ ENV/
 
 # Vim files
 *.swp
+
+# Project-specific
+secrets.py
