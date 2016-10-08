@@ -1,13 +1,38 @@
 #!/usr/bin/env python3
-import asyncio, entity, io, json, random, threading, time, websockets, whale
+import asyncio, entity, io, json, queue, random, threading, time, websockets, whale
 from random import randrange
 
-class Environment:
+class Event:
+    def __init__(self):
+        self.callbacks = []
 
+    def __call__(self, *a, **kw):
+        for callback in self.callbacks:
+            callback(*a, **kw)
+
+    def __iadd__(self, callback):
+        self.callbacks.append(callback)
+        return self
+
+
+class Environment:
     def __init__(self):
         self.spaceship = entity.Spaceship(0, 0)
         self.entities = [self.spaceship]
-        # function for generating entities
+
+        self.entity_added = Event()
+        self.entity_removed = Event()
+        self.entity_moved = Event()
+
+
+    def add_entity(self, entity):
+        self.entities.append(entity)
+        self.entity_added(entity)
+
+    def remove_entity(self, entity):
+        self.entities.remove(entity)
+        self.entity_removed(entity)
+        
 
     def space_contains(self, x, y):
         for entity in self.entities:
@@ -16,16 +41,13 @@ class Environment:
         return None
         
     def update_positions(self):
-        moved_entities = []
-        removed_entities = []
-
         for ent in self.entities:
             if ent != self.spaceship:
                 ent.x -= self.spaceship.velocity_x - ent.velocity_x
                 ent.y -= self.spaceship.velocity_y - ent.velocity_y
 
                 if ent.velocity_x != 0 or ent.velocity_y != 0:
-                    moved_entities.append(ent)
+                    self.entity_moved(ent)
 
                 entity = self.space_contains(ent.x, ent.y)
                 if entity != None:
@@ -34,53 +56,66 @@ class Environment:
                     entity.velocity_x = -1*entity.velocity_x
                     entity.velocity_y = -1*entity.velocity_y
 
-                if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
-                    self.entities.remove(ent)
-                    removed_entities.append(ent)
-
-        # function for randomly generating new entities entering field
-        return (moved_entities, removed_entities)
+                #if ent.x < 0 or ent.x > 10 or ent.y < 0 or ent.y > 10:
+                    #self.remove_entity(ent)
 
 
-class Simulator:
+class Game:
+    # The internal tick length, in seconds
     TICK_LENGTH = 1
     
     def __init__(self, target_address):
         self.active = False
         self.environment = Environment()
         self.target_address = target_address
+        self.changes = queue.Queue()
+
+        self.environment.entity_added += self.handle_entity_added
+        self.environment.entity_removed += self.handle_entity_removed
+        self.environment.entity_moved += self.handle_entity_moved
+
+
+    def handle_entity_added(self, e):
+        self.changes.put({
+            'entity': e.id,
+            'type': type(e).__name__,
+            'pos': (e.x, e.y),
+            'velocity': (e.velocity_x, e.velocity_y),
+            'added': True
+        })
+
+    def handle_entity_removed(self, e):
+        self.changes.put({
+            'entity': e.id,
+            'removed': True
+        })
+
+    def handle_entity_moved(self, e):
+        self.changes.put({
+            'entity': e.id,
+            'pos': (e.x, e.y),
+            'velocity': (e.velocity_x, e.velocity_y),
+        })
+
 
     @asyncio.coroutine
     def loop(self):
         self.websocket = yield from websockets.connect(self.target_address)
 
-        yield from self.websocket.send(json.dumps([
-            {
-                'entity': e.id,
-                'type': type(e).__name__,
-                'pos': (e.x, e.y),
-                'velocity': (e.velocity_x, e.velocity_y),
-                'added': True
-            } for e in self.environment.entities
-        ]))
-
         while self.active:
-            moved, removed = self.environment.update_positions()
-            changes = json.dumps([
-                {
-                    'entity': e.id,
-                    'pos': (e.x, e.y),
-                    'velocity': (e.velocity_x, e.velocity_y),
-                } for e in moved
-            ] + [
-                {
-                    'entity': e.id,
-                    'removed': True
-                } for e in removed
-            ])
-            
-            yield from self.websocket.send(changes)
-            print(changes)
+            self.environment.update_positions()
+
+            while True:
+                try:
+                    change = self.changes.get_nowait()
+                    if change is None:
+                        break
+                except queue.Empty:
+                    break
+                
+                yield from self.websocket.send(json.dumps(change))
+                print(change)
+
             time.sleep(self.TICK_LENGTH)
 
     def run(self):
@@ -93,6 +128,6 @@ class Simulator:
 
 
 if __name__ == "__main__":
-    sim = Simulator('ws://localhost:9000')
-    sim.environment.entities += [whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10)) for i in range(3)]
+    sim = Game('ws://localhost:9000')
+    [sim.environment.add_entity(whale.Dolphin('dolphin%d' % i, randrange(1, 10), randrange(1, 10))) for i in range(3)]
     sim.run()
