@@ -1,5 +1,5 @@
 import tweepy
-from vote import VoteCounter
+from .vote import VoteCounter
 
 from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET
 
