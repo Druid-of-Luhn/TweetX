@@ -34,8 +34,8 @@ class Game {
       this.entities[entity.entity].pos = entity.pos;
     } else {
       // Set the entity's new position
-      this.entities[entity.entity].pos[0] = entity.pos[0] * SCALE - this.player.pos[0] * SCALE;
-      this.entities[entity.entity].pos[1] = entity.pos[1] * SCALE - this.player.pos[1] * SCALE;
+      this.entities[entity.entity].pos[0] = (entity.pos[0] - this.player.pos[0]) * SCALE;
+      this.entities[entity.entity].pos[1] = (entity.pos[1] - this.player.pos[1]) * SCALE;
     }
   }
 

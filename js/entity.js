@@ -15,7 +15,7 @@ class Entity {
       render.drawImage(document.images[0], pos.x, pos.y, w, h);
     } else {
       // Place the entity
-      const pos = norm(entity.pos[0] * SCALE, entity.pos[1] * SCALE);
+      const pos = norm(entity.pos[0], entity.pos[1]);
       if (entity.type === 'Dolphin') {
         // Draw a dolphin
         render.drawImage(document.images[1], pos.x, pos.y, w, h);
