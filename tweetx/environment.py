@@ -86,6 +86,7 @@ class Game:
                 'type': type(e).__name__,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'direction': e.direction_orientation,
                 'added': True
             })
 
@@ -100,6 +101,7 @@ class Game:
                 'entity': e.id,
                 'pos': (e.x, e.y),
                 'velocity': (e.velocity_x, e.velocity_y),
+                'direction': e.direction_orientation,
             })
 
 
